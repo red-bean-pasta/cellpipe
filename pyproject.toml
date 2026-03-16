@@ -1,0 +1,23 @@
+[project]
+name = "cellpipe"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "scanpy",
+]
+
+[project.optional-dependencies]
+gui = ["PySide6"]
+celltypist = ["celltypist"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+cellpipe = "cellpipe.__main__:main"
