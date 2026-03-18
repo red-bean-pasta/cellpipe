@@ -31,7 +31,7 @@ annotation_key: str = "cell_type"
 celltypist_prefix: str = "celltypist_"
 
 
-def main(args: argparse.Namespace):
+def run(args: argparse.Namespace):
     matplotlib.use('svg')
     sc.settings.figdir = args.output
     sc.set_figure_params(figsize=(8, 6), dpi=300, transparent=True, format="svg")
