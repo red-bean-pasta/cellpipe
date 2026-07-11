@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import scanpy as sc
 from anndata import AnnData
+from matplotlib.colors import Colormap
 
 from cellpipe import celltypist_annotater
 
@@ -44,7 +45,7 @@ def draw_target_gene_figures(
         target_genes: set[str],
         group_key: str,
         draw_smoothed: bool = False,
-        color_map: str = "magma",
+        color_map: Colormap | str | None = "magma",
         use_raw: bool = True,
 ) -> None:
     source = data.raw if use_raw and data.raw is not None else data
@@ -69,7 +70,7 @@ def draw_target_gene_figures(
 def draw_smoothed_target_gene_umap(
     data: AnnData,
     target_gene: str,
-    color_map: str = "magma",
+    color_map: Colormap | str | None = "magma",
     use_raw: bool = True,
 ) -> None:
     source = data.raw if use_raw and data.raw is not None else data
@@ -89,7 +90,7 @@ def _draw_umap(
         data: AnnData,
         key: str,
         legend_location: str ="right margin",
-        cmap: str ="magma",
+        cmap: Colormap | str | None = "magma",
         **kwargs
 ) -> None:
     sc.pl.umap(

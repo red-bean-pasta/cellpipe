@@ -25,6 +25,7 @@ It is designed for anyone who want a quick and manageable wrapper for routine sc
 - Optional **CellTypist** annotation
 - **Stage-based caching** with validation, making parameter experiments much faster
 - **SVG** figures for easy postprocessing in vector editors
+- UMAP color gradient customization
 - **CSV** summaries for quick inspection in text viewers or spreadsheet software
 - Marker definitions can be edited from the CLI or directly in the GUI
 - Modular Python code for users who want to customize the workflow
@@ -214,6 +215,7 @@ Usp13_expression_by_cell_type.csv
 - `--umap-spread X`
 - `--umap-seed INT`
 - `--smooth-umap`
+- `--target-gene-color-map`
 ### Annotation
 - `--annot-min-score X`
 - `--annot-min-margin X`

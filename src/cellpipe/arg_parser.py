@@ -1,7 +1,9 @@
 import argparse
+from argparse import Namespace
 from pathlib import Path
 from typing import Callable, Sequence
 import matplotlib
+from matplotlib.colors import is_color_like, LinearSegmentedColormap
 
 from numpy import uint
 
@@ -217,8 +219,11 @@ def _get_arg_parser() -> argparse.ArgumentParser:
     )
     umap.add_argument(
         "--target-gene-color-map",
-        default="magma",
-        help=f"Specify the color map for the generated UMAP plots for --target-genes. Available options: {list(matplotlib.colormaps)}",
+        nargs="+",
+        default=["magma"],
+        action=ColorMapAction,
+        metavar="COLOR",
+        help=f"Specify the color map for the generated UMAP plots for --target-genes. Accept a matplotlib preset name or a custom gradient made up of multiple color hexes prefixed with # and separated by blank spaces. For matplotlib presets, see https://matplotlib.org/stable/users/explain/colors/colormaps.html",
     )
 
     annot = parser.add_argument_group("Marker-based Annotation")
@@ -251,7 +256,6 @@ def _get_arg_parser() -> argparse.ArgumentParser:
 
     parser.validators.append(_ensure_marker_provided)
     parser.validators.append(_ensure_celltypist_normalize_sum)
-    parser.validators.append(_ensure_cmap_valid)
 
     return parser
 
@@ -266,9 +270,31 @@ def _ensure_celltypist_normalize_sum(args: argparse.Namespace) -> None:
         raise ValueError(f"CellTypist requires log1p normalized expression with 10000 normalized sum while the passed is {args.normalize_sum}")
 
 
-def _ensure_cmap_valid(args: argparse.Namespace) -> None:
-    if args.target_gene_color_map not in list(matplotlib.colormaps):
-        raise ValueError(f"Unknown color map: {args.target_gene_color_map}")
+class ColorMapAction(argparse.Action):
+    def __call__(
+            self,
+            parser,
+            namespace,
+            values,
+            option_string=None
+    ):
+        if not isinstance(values, list):
+            raise argparse.ArgumentTypeError()
+
+        if len(values) == 1 and values[0] in matplotlib.colormaps:
+            cmap = matplotlib.colormaps[values[0]]
+            setattr(namespace, self.dest, cmap)
+            return
+
+        invalid = [v for v in values if not is_color_like(v)]
+        if invalid:
+            parser.error(f"{option_string}: invalid custom colors: {', '.join(invalid)}")
+
+        cmap = LinearSegmentedColormap.from_list(
+            "custom_gradient",
+            values,
+        )
+        setattr(namespace, self.dest, cmap)
 
 
 parser = _get_arg_parser()
