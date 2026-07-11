@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 from typing import Callable, Sequence
+import matplotlib
 
 from numpy import uint
 
@@ -214,6 +215,11 @@ def _get_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Set to additionally generate smoothed UMAP plots for target genes. Smoothed plots are less faithful to raw expression values but may help visually",
     )
+    umap.add_argument(
+        "--target-gene-color-map",
+        default="magma",
+        help=f"Specify the color map for the generated UMAP plots for --target-genes. Available options: {list(matplotlib.colormaps)}",
+    )
 
     annot = parser.add_argument_group("Marker-based Annotation")
     annot.add_argument(
@@ -244,6 +250,8 @@ def _get_arg_parser() -> argparse.ArgumentParser:
     )
 
     parser.validators.append(_ensure_marker_provided)
+    parser.validators.append(_ensure_celltypist_normalize_sum)
+    parser.validators.append(_ensure_cmap_valid)
 
     return parser
 
@@ -255,7 +263,12 @@ def _ensure_marker_provided(args: argparse.Namespace) -> None:
 
 def _ensure_celltypist_normalize_sum(args: argparse.Namespace) -> None:
     if args.celltypist_model and args.normalize_sum != 1e4:
-        raise ValueError(f"CellTypist requires log1p normalized expression with 10000 normalized sum while yours is {args.normalize_sum}")
+        raise ValueError(f"CellTypist requires log1p normalized expression with 10000 normalized sum while the passed is {args.normalize_sum}")
+
+
+def _ensure_cmap_valid(args: argparse.Namespace) -> None:
+    if args.target_gene_color_map not in list(matplotlib.colormaps):
+        raise ValueError(f"Unknown color map: {args.target_gene_color_map}")
 
 
 parser = _get_arg_parser()

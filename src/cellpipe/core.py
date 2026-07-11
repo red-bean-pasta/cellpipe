@@ -246,7 +246,7 @@ def _visualize(
         visualizer.draw_celltypist_overview(data, celltypist_prefix)
     if args.target_genes:
         logger.debug("Drawing overviews for target genes...")
-        visualizer.draw_target_gene_figures(data, args.target_genes, annotation_key, args.smooth_umap)
+        visualizer.draw_target_gene_figures(data, args.target_genes, annotation_key, args.smooth_umap, args.target_gene_color_map)
 
 
 def _summarize(

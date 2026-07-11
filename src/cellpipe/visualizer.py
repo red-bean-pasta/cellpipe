@@ -44,6 +44,7 @@ def draw_target_gene_figures(
         target_genes: set[str],
         group_key: str,
         draw_smoothed: bool = False,
+        color_map: str = "magma",
         use_raw: bool = True,
 ) -> None:
     source = data.raw if use_raw and data.raw is not None else data
@@ -52,7 +53,7 @@ def draw_target_gene_figures(
             logger.warning(f"Skipped {gene}: Not found in dataset")
             continue
 
-        _draw_umap(data, gene, use_raw=True)
+        _draw_umap(data, gene, cmap=color_map)
         sc.pl.violin(
             data,
             keys=gene,
@@ -62,12 +63,13 @@ def draw_target_gene_figures(
             show=False,
         ).figure.savefig(_get_save_path(f"violin_{gene}.svg"))
         if draw_smoothed:
-            draw_smoothed_target_gene_umap(data, gene, use_raw)
+            draw_smoothed_target_gene_umap(data, gene, color_map=color_map, use_raw=True)
 
 
 def draw_smoothed_target_gene_umap(
     data: AnnData,
     target_gene: str,
+    color_map: str = "magma",
     use_raw: bool = True,
 ) -> None:
     source = data.raw if use_raw and data.raw is not None else data
@@ -80,14 +82,14 @@ def draw_smoothed_target_gene_umap(
 
     column_name = f"{target_gene}_smoothed"
     data.obs[column_name] = smoothed
-    _draw_umap(data, column_name, vmin=0, vmax="p99")
+    _draw_umap(data, column_name, cmap=color_map, vmin=0, vmax="p99")
 
 
 def _draw_umap(
         data: AnnData,
         key: str,
-        legend_location="right margin",
-        cmap="magma",
+        legend_location: str ="right margin",
+        cmap: str ="magma",
         **kwargs
 ) -> None:
     sc.pl.umap(

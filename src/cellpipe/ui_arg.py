@@ -8,7 +8,7 @@ import numpy as np
 from PySide6.QtWidgets import (
     QWidget,
     QLabel, QCheckBox, QSpinBox, QDoubleSpinBox, QToolButton, QMessageBox,
-    QHBoxLayout, QVBoxLayout, QGridLayout,
+    QHBoxLayout, QVBoxLayout, QGridLayout, QLineEdit,
 )
 
 from cellpipe import property_widgets
@@ -185,8 +185,10 @@ def _infer_widget(action: argparse.Action) -> ArgWidget:
         constructor = _get_choices_widget
     elif action.type is Path:
         constructor = partial(_get_path_picker_widget, mode=PickPathMode.PICK_FILE)
-    else:
+    elif action.nargs in ("+", "*") or isinstance(action, argparse._AppendAction):
         constructor = _get_token_text_widget
+    else:
+        constructor = _get_line_edit_widget
 
     return constructor(action, default)
 
@@ -314,6 +316,29 @@ def _get_token_text_widget(
         ),
         _action=action,
         _get_arguments=_get_arguments
+    )
+
+
+def _get_line_edit_widget(
+        action: argparse.Action,
+        default: str | None,
+) -> ArgWidget:
+    widget = QLineEdit()
+    if default:
+        widget.setText(str(default))
+
+    def _get_arguments(flag: str, value: str) -> list[str] | None:
+        if value == "":
+            return None
+        return [flag, value]
+    return ArgWidget(
+        PropertyWidget(
+            widget=widget,
+            get_value=lambda w=widget: w.text(),
+            set_value=lambda value, w=widget: w.setText("" if value is None else str(value)),
+        ),
+        _action=action,
+        _get_arguments=_get_arguments,
     )
 
 
